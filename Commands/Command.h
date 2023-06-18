@@ -5,7 +5,7 @@
 class Command{
 public:
     virtual ~Command()=default;
-    virtual void execute(Automata&aut)const=0;
+    virtual void execute(Automata&aut)=0;
 };
 
 

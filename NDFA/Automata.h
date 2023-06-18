@@ -48,7 +48,7 @@ public:
     void makeDeterminized();
     void makeMinimal();
 
-    void debug()const;
+    void print()const;
 
     MyString getRegularExpression()const;
     MyString getRegularExpression(int start, int end, int bound,bool epsilon )const;

@@ -1,6 +1,11 @@
 #include <iostream>
 #include "NDFA/Automata.h"
 #include "Commands/CommandFactory.h"
+// Martin Marinkov 5MI0600202
+//https://youtu.be/qZWwwcIer-U
+// kompilira se na gcc -CLion
+// ne sym osobeno siguren za command patterna dali trqbva da izglejda taka
+// no inache funkciite rabotqt
 
 int main() {
 
@@ -9,20 +14,17 @@ int main() {
     Command* ct =cf.getCommand();
     ct->execute(aut);
 
+    aut.print();
 
-    //Automata fsa("1*");
-    //fsa.debug();
-    //std::cout<<"accept-"<<fsa.accept("111")<<std::endl;
+
+    //Automata fsa("a*");
+    //std::cout<<"accept-"<<fsa.accept("aa")<<std::endl;
     //std::cout<<"Pray to God -------------------------"<<std::endl;
     //std::cout<<fsa.getRegularExpression();
     //fsa.makeTotal();
-    //fsa.debug();
+    //fsa.print();
     //std::cout<<"accept-"<<fsa.accept("abb")<<std::endl;
+//    fsa.print();
 
-
-//    fsa.debug();
-
-//    CommandFactory createCommand(input);
-//    receiver.execute(command)
     return 0;
 }

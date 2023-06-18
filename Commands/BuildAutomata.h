@@ -8,7 +8,7 @@ public:
     BuildAutomata(const BuildAutomata&other)=delete;
     BuildAutomata& operator = (const BuildAutomata&other)=delete;
 
-    void execute(Automata& ndfa)const override;
+    void execute(Automata& ndfa) override;
 };
 
 #endif //NDFA04_BUILDAUTOMATA_H

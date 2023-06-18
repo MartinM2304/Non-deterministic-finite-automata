@@ -6,7 +6,7 @@ class LoadFromFile:public Command {
     MyString name;
 public:
     LoadFromFile(const MyString& name);
-    void execute(Automata& aut)const override;
+    void execute(Automata& aut) override;
 };
 
 

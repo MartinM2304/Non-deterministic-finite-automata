@@ -2,9 +2,10 @@
 
 
 
-void BuildAutomata::execute(Automata&aut)const {
+void BuildAutomata::execute(Automata&aut) {
     std::cout<<"Choose 1 to build automata from regex"<<std::endl<<
-    "Choose 2 to load from file"<<std::endl;
+    "Choose 2 to load from file"<<std::endl<<
+    "Or anythig else in order not to change the automat"<<std::endl;
     int n;
     std::cin>>n;
     if(n==1) {
@@ -13,7 +14,7 @@ void BuildAutomata::execute(Automata&aut)const {
         std::cin>>input;
         aut = aut.build(input);
         std::cout<<"Done :0"<<std::endl;
-    }else{
+    }else if(n==2){
         MyString input;
         std::cout<<"Enter the name of the file";
         std::cin>>input;
@@ -52,9 +53,10 @@ void BuildAutomata::execute(Automata&aut)const {
             aut.isEmptyLanguage();
             std::cout<<"Done :0"<<std::endl;
         }else if(n==6){
-            aut.debug();
+            aut.print();
         }else if(n>6|| n<0){
             std::cout<<"Enter valid number"<<std::endl;
         }
     }
+    std::cout<<"Thank you for using Automata - by Tedi Aleksandrova"<<std::endl;
 }

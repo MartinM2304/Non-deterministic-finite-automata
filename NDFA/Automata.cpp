@@ -210,8 +210,6 @@ Automata Automata::buildSmallAutomata(char ch) const {
     temp.addState();
     temp.addTransition(0,1,ch);
     temp.makeStateFinal(1);
-    //temp.debug();
-    //std::cout<<"_________________________"<<std::endl;
     return temp;
 }
 
@@ -239,7 +237,6 @@ bool Automata::reachableStates(int state,const MyString &str) const {
     if(str.length()==0&& isFinal(state)){
         return true;
     }
-    //std::cout<<"length-"<<str.length()<<std::endl;
     if(str.length()==0){
         return false;
     }
@@ -247,7 +244,6 @@ bool Automata::reachableStates(int state,const MyString &str) const {
     char firstLetter= str[0];
     MyString remaining=str.substr(1,str.length()-1);
 
-    //std::cout<<states[state].getCountOfTransitions()<<std::endl;
 
 
     for(int i=0;i<states[state].getCountOfTransitions();i++){
@@ -296,7 +292,6 @@ void Automata::changeStartingState(size_t n) {
 }
 void Automata::makeToOneAutomata(const Automata &other) {
     int size =states.getSize();
-    //int otherSize=other.states.getSize();
 
     for(int i=0;i<other.states.getSize();i++){
         states.push(other.states[i]);
@@ -315,7 +310,7 @@ void Automata::reverse() {
     Automata result(states.getSize());
     result.alphabet=alphabet;
 
-    this->debug();
+    this->print();
 
     for(int i=0;i<states.getSize();i++){
         for(int j=0;j<states[i].getCountOfTransitions();j++){
@@ -437,15 +432,9 @@ void Automata::makeMinimal() {
     reverse();
     makeDeterminized();
     makingMinimal = false;
-    //isMinimal= true;
 }
 
 
-void removeEpsilo(MyString& str){
-    for(int i=0;i<str.length();i++){
-
-    }
-}
 MyString Automata::getRegularExpression() const {
     MyString result ="";
     int counterEpsilon=0;
@@ -523,6 +512,7 @@ MyString Automata::getRegularExpression() const {
 //
 //    return finalRegex;
 //}
+
 bool needBrackets(const MyString& regex)
 {
     if (regex.length() == 0)
@@ -541,7 +531,7 @@ MyString Automata::getRegularExpression(int start, int end, int bound, bool epsi
     // From Angeld55
     // Ne sme vzimali kak se izvejda regulqren izraz ot avtomat,
     // opitah nqkolko varianta i se chupeha v nqkoi sluchai
-    // ostaveni sa zakomentirani po dolu
+    // ostaveni sa zakomentirani po gore
     if(bound==0){
         MySet<char> temp;
 
@@ -616,26 +606,6 @@ Automata Union(const Automata& lhs, const Automata& rhs){
     // drawing the both automats
     //adding new starting state
 
-
-//    lhs.debug();
-//    std::cout<<lhs.states.getSize()<<std::endl;
-//    std::cout<<"---------------"<<std::endl;
-//
-//    rhs.debug();
-//    std::cout<<rhs.states.getSize()<<std::endl;
-//
-//    std::cout<<"---------------"<<std::endl;
-
-
-
-//    size_t finalStatesCount = lhs.finalStates.getSize();
-//    MyVector<State> tempFinalStates;
-//    for(int i=0;i<finalStatesCount;i++){
-//        State temp;
-//        temp.transitionsFromState=rhs.states[0].transitionsFromState;
-//        //tempFinalStates.push(temp);
-//        result.states.push(temp);
-//    }
     Automata result=lhs;
     result.makeToOneAutomata(rhs);
     result.addState();
@@ -656,18 +626,13 @@ Automata Union(const Automata& lhs, const Automata& rhs){
 
 Automata Concat(const Automata& lhs, const Automata& rhs){
     //Zinoviev methods
-    //the
+
     Automata result=lhs;
     result.makeToOneAutomata(rhs);
 
     size_t finalStatesCount = lhs.finalStates.getSize();
     MySet<int> tempFinalStates;
-//    for(int i=0;i<finalStatesCount;i++){
-//        State temp;
-//        temp.transitionsFromState=rhs.states[0].transitionsFromState;
-//        //tempFinalStates.push(temp);
-//        result.states.push(temp);
-//    }
+
     for(int i=0;i<finalStatesCount;i++){
         result.copyTransitions(lhs.finalStates[i],rhs.startState+lhs.states.getSize());
     }
@@ -724,7 +689,7 @@ Automata Complement(const Automata& source){
     return result;
 }
 
-void Automata::debug() const {
+void Automata::print() const {
     std::cout<<"starting state-"<<startState<<std::endl;
     for(int i=0;i<states.getSize();i++){
         std::cout<<"State - "<<i<<" - "<<std::endl;
@@ -741,18 +706,22 @@ void Automata::debug() const {
 void Automata::writeToFile(const MyString &name) const {
     std::ofstream ofs(name.c_str(),std::ios::binary);
 
+    if(!ofs.is_open()){
+        throw std::runtime_error("file not opened");
+
+    }
     ofs.write((const char*)& startState, sizeof(startState));
 
     int alphabetSize = alphabet.getSize();
     ofs.write((const char*)&alphabetSize, sizeof(int));
     for(int i=0;i<alphabetSize;i++){
-        ofs.write((const char*)alphabet[i], sizeof(char ));
+        ofs.write((const char*)&alphabet[i], sizeof(alphabet[i]));
     }
 
     int finalStatesSize = finalStates.getSize();
     ofs.write((const char*)&finalStatesSize, sizeof(int));
     for(int i=0;i<finalStatesSize;i++){
-        ofs.write((const char*)finalStates[i], sizeof(int ));
+        ofs.write((const char*)&finalStates[i], sizeof(int ));
     }
 
     int statesSize= states.getSize();
@@ -762,16 +731,20 @@ void Automata::writeToFile(const MyString &name) const {
     }
 
     ofs.write((const char*)&isStartFinal, sizeof(bool ));
+    ofs.close();
 }
 void Automata::readFromFile(const MyString &name) {
     std::ifstream ifs(name.c_str(),std::ios::binary);
 
+    if(!ifs.is_open()){
+        throw std::runtime_error("file not opened");
+    }
     ifs.read((char*)& startState, sizeof(startState));
 
     int alphabetSize = 0;
     ifs.read(( char*)&alphabetSize, sizeof(int));
     for(int i=0;i<alphabetSize;i++){
-        ifs.read((char*)alphabet[i], sizeof(char));
+        ifs.read((char*)&alphabet[i], sizeof(char));
     }
 
     int finalStatesSize = 0;
@@ -786,4 +759,5 @@ void Automata::readFromFile(const MyString &name) {
         states[i].readFromFile(ifs);
     }
     ifs.read((char*) &isStartFinal, sizeof(bool ));
+    ifs.close();
 }
