@@ -1,6 +1,5 @@
 #include "MyString.h"
 #include <cstring>
-
 #pragma warning (disable : 4996)
 
 MyString::MyString() : MyString("") { }
@@ -26,6 +25,11 @@ MyString::MyString(const char* data)
         strcpy(_data, data);
         notUsingSso();
     }
+}
+MyString::MyString(char ch){
+    static char arr[2];
+    arr[0]=ch;
+    *this=MyString(arr);
 }
 void MyString::notUsingSso()
 {
@@ -152,10 +156,10 @@ MyString& MyString::operator+=(const MyString& other)
 }
 
 MyString &MyString::operator+=(char ch) {
-    return (*this+="ch");
+    MyString temp(ch);
+    //std::cout<<temp<<std::endl;
+    return (*this+= temp);
 }
-
-
 
 char& MyString::operator[](size_t index)
 {
@@ -215,3 +219,5 @@ bool operator!=(const MyString& lhs, const MyString& rhs)
 {
     return strcmp(lhs.c_str(), rhs.c_str()) != 0;
 }
+
+

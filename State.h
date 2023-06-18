@@ -8,16 +8,12 @@ struct State {
 
     void addTransition(size_t dest, char key);
     void addTransition(const Transition& tr);
+    size_t getCountOfTransitions()const;
+    Transition& operator[](size_t n);
+    const Transition& operator[](size_t n)const;
+    bool hasTransition(char ch)const;
+
+    State& operator+=(const State& other);
 };
-
-void State::addTransition(size_t dest, char key) {
-    Transition tr(dest,key);
-    transitionsFromState.push(tr);
-}
-
-void State::addTransition(const Transition &tr) {
-    transitionsFromState.push(tr);
-}
-
 
 #endif //NDFA04_STATE_H

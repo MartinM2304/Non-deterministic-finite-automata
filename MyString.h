@@ -1,6 +1,7 @@
 #ifndef NDFA_03_MYSTRING_H
 #define NDFA_03_MYSTRING_H
 #include <iostream>
+
 class MyString
 {
     static const short SSO_MAX_SIZE = sizeof(char*) + sizeof(size_t) - 1;
@@ -27,6 +28,7 @@ public:
 
     MyString();
     MyString(const char* data);
+    MyString(char ch);
 
     MyString(const MyString& other);
     MyString& operator=(const MyString& other);
@@ -49,6 +51,7 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const MyString& obj);
+//MyString reverse(const MyString& other);
 
 bool operator<(const MyString& lhs, const MyString& rhs);
 bool operator<=(const MyString& lhs, const MyString& rhs);
