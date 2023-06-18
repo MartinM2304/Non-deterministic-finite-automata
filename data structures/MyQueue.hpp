@@ -4,6 +4,7 @@
 #include <iostream>
 #include <exception>
 template <typename T>
+//from AngelD55
 class MyQueue
 {
     T* data;
