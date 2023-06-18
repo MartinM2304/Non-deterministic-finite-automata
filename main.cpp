@@ -1,18 +1,23 @@
 #include <iostream>
-#include "Automata.h"
-#include "Command.h"
+#include "NDFA/Automata.h"
+#include "Commands/CommandFactory.h"
 
 int main() {
 
+    Automata aut;
+    CommandFactory cf;
+    Command* ct =cf.getCommand();
+    ct->execute(aut);
 
-    Automata fsa("ab");
-    fsa.debug();
-    std::cout<<"accept-"<<fsa.accept("abb")<<std::endl;
-    std::cout<<"Pray to God -------------------------"<<std::endl;
+
+    //Automata fsa("1*");
+    //fsa.debug();
+    //std::cout<<"accept-"<<fsa.accept("111")<<std::endl;
+    //std::cout<<"Pray to God -------------------------"<<std::endl;
     //std::cout<<fsa.getRegularExpression();
-    fsa.makeDeterminized();
-    fsa.debug();
-    std::cout<<"accept-"<<fsa.accept("ab")<<std::endl;
+    //fsa.makeTotal();
+    //fsa.debug();
+    //std::cout<<"accept-"<<fsa.accept("abb")<<std::endl;
 
 
 //    fsa.debug();
