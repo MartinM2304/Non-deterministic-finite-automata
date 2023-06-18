@@ -2,7 +2,7 @@
 #define NDFA04_TRANSITION_HPP
 #include <iostream>
 struct Transition{
-    size_t destination;
+    int destination;
     char key;
 
     Transition(){

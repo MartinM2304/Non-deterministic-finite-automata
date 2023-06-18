@@ -303,7 +303,7 @@ void Automata::makeToOneAutomata(const Automata &other) {
 }
 
 void Automata::reverse() {
-    Automata result;
+    Automata result(states.getSize());
     result.alphabet=alphabet;
 
     for(int i=0;i<states.getSize();i++){
@@ -416,7 +416,18 @@ void Automata::makeMinimal() {
 }
 
 MyString Automata::getRegularExpression() const {
+    MyString result;
 
+    bool firstFinalState= false;
+    for(int i=0;i<states.getSize();i++){
+        if(!firstFinalState){
+            result+='+';
+        }else{
+            firstFinalState= false;
+        }
+        int finalStateInd=finalStates[i];
+        result+=""
+    }
 }
 
 Automata Union(const Automata& lhs, const Automata& rhs){
