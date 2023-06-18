@@ -30,8 +30,8 @@ public:
     Automata& addState();
     Automata& addLetter(char ch);
     Automata& makeLastStateStarting();
-    //void makeState();
     void makeStateFinal(size_t ind);
+    bool isReachable(int state)const;
 
     Automata build(const MyString& str)const;
     Automata buildSmallAutomata(char ch)const;
@@ -66,8 +66,8 @@ public:
 
 private:
     MySet<int> startingStates;
-    bool isStartingFinal= false;
-
+    bool makingMinimal= false;
+    bool isStartFinal = false;
 };
 
 Automata Complement(const Automata& source);

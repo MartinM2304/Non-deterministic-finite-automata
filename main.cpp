@@ -5,11 +5,14 @@
 int main() {
 
 
-    Automata fsa("(a+b)*");
+    Automata fsa("ab");
     fsa.debug();
-    std::cout<<"accept-"<<fsa.accept("aa")<<std::endl;
+    std::cout<<"accept-"<<fsa.accept("abb")<<std::endl;
     std::cout<<"Pray to God -------------------------"<<std::endl;
-//    fsa.getRegularExpression();
+    //std::cout<<fsa.getRegularExpression();
+    fsa.makeDeterminized();
+    fsa.debug();
+    std::cout<<"accept-"<<fsa.accept("ab")<<std::endl;
 
 
 //    fsa.debug();

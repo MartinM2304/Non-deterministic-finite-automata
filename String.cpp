@@ -5,6 +5,9 @@ MyString::MyString(size_t capacity)
 {
     _length = capacity - 1;
     _data = new char[capacity];
+    for(int i=0;i<capacity;i++){
+        _data[i]='\0';
+    }
 }
 
 MyString operator+(const MyString& lhs, const MyString& rhs)
@@ -56,12 +59,6 @@ MyString::MyString() : MyString(1)
 MyString::MyString(const char* data) : MyString(strlen(data) + 1)
 {
     strcpy(_data, data);
-}
-MyString::MyString(char ch,int) {
-    static char arr[2];
-    arr[0]=ch;
-    arr[1]='\0';
-    *this=MyString(arr);
 }
 
 MyString::MyString(const MyString& other)

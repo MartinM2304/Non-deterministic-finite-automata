@@ -50,55 +50,8 @@ MyString reversPolishNotation(const MyString& str){
                 operators.push('.');
             }
         }
-
-
     }
 
-//    for(int i=0;i<len;i++){
-//        char temp=str[i];
-//        if(isLetter(temp)){
-//            result+=temp;
-//        }else if(temp=='('){
-//            operators.push('(');
-//        }else if(temp==')'){
-//            while (!operators.isEmpty() && operators.back()!='('){
-//                result+=operators.back();
-//                operators.popBack();
-//            }
-//            if(!operators.isEmpty()&& operators.back()=='('){
-//
-//                operators.popBack();
-//            }
-//        }  else if (temp == '*') {
-//            result += '*';
-//
-//        } else if (temp == '+') {
-//            while (operators.isEmpty() && (operators.back() == '.' || operators.back() == '+')) {
-//                result += operators.back();
-//                operators.popBack();
-//            }
-//            operators.push('+');
-//        }
-//
-//        if(i!= len-1){
-//            char beforeLast = str[i];
-//            char last = str[i+1];
-//
-//            std::cout<<last<<" "<<temp<<std::endl;
-//
-//            if ((isLetter(last) && (isLetter(beforeLast) || beforeLast == '('))
-//            || (last == ')' && (isLetter(beforeLast) || beforeLast == '('))
-//            || (last == '*' && (beforeLast == '(' || isLetter(beforeLast)))){
-//                while (!operators.isEmpty()&&
-//                (operators.back()=='.'||operators.back()=='*')){
-//                    result+=operators.back();
-//                    operators.popBack();
-//                }
-//                operators.push('.');
-//            }
-//        }
-//
-//    }
     while (! operators.isEmpty()){
         result+= operators.back();
         operators.popBack();
@@ -149,8 +102,37 @@ Automata &Automata::makeLastStateStarting() {
 
 }
 
+
 void Automata::makeStateFinal(size_t ind) {
     finalStates.push(ind);
+}
+
+bool Automata::isReachable(int state) const {
+    MySet<int> visited;
+    MyVector<int> temp;
+    temp.push(startState);
+
+    while (!temp.isEmpty()){
+        int currentState= temp.back();
+        temp.popBack();
+
+        if(visited.contains(currentState)){
+            continue;
+        }
+        visited.push(currentState);
+
+        if(currentState==state){
+            return true;
+        }
+
+        for(int i=0;i<alphabet.getSize();i++ ){
+            MySet<int> nextState= getTransitions(currentState,alphabet[i]);
+            for(int j=0;j<nextState.getSize();j++){
+                temp.push(nextState[i]);
+            }
+        }
+    }
+    return false;
 }
 
 Automata Automata::build(const MyString &str)const{
@@ -306,12 +288,11 @@ void Automata::reverse() {
     Automata result(states.getSize());
     result.alphabet=alphabet;
 
+    this->debug();
+
     for(int i=0;i<states.getSize();i++){
         for(int j=0;j<states[i].getCountOfTransitions();j++){
-            Transition temp = states[i][j];
-            //std::cout<<states[i].getCountOfTransitions()<<std::endl;
-            //result.addTransition(states[i][j].destination,i,states[i][j].key);
-            result.addTransition(temp.destination,i,temp.key);
+            result.addTransition(states[i][j].destination,i,states[i][j].key);
         }
     }
     result.makeStateFinal(startState);
@@ -319,9 +300,11 @@ void Automata::reverse() {
     MySet<int> newFinalStates= finalStates;
     result.startingStates=finalStates;
     if(finalStates.contains(startState)){
-        result.isStartingFinal= true;
+        result.isStartFinal= true;
     }
+    result.makingMinimal= true;
     *this=result;
+    return;
 }
 
 void Automata::makeTotal() {
@@ -343,23 +326,32 @@ void Automata::makeTotal() {
 }
 
 void Automata::makeDeterminized() {
-    if(isDeterminized()){
-        return;
-    }
+
     Automata result;
+    result.makingMinimal= makingMinimal;
+    result.isStartFinal=isStartFinal;
 
     MyQueue<MySet<int>> newStates;
     MyVector<MySet<int>> stateSets;
     MyVector<int> stateIndexes;
-    MySet<int> newStartState;
+    MySet<int> newStartStates;
     result.alphabet=alphabet;
 
-    if(isFinal(startState)){
-        result.makeStateFinal(0);
+
+    if(makingMinimal){
+        newStartStates=startingStates;
+        if(isStartFinal){
+            result.makeStateFinal(0);
+        }
+    }else{
+        newStartStates.push(startState);
+        if(isFinal(startState)){
+            result.makeStateFinal(0);
+        }
     }
 
-    stateSets.push(newStartState);
-    newStates.push(newStartState);
+    stateSets.push(newStartStates);
+    newStates.push(newStartStates);
     stateIndexes.push(0);
 
     int statesCount =1;
@@ -406,80 +398,114 @@ void Automata::makeDeterminized() {
     *this=result;
 }
 
+
 void Automata::makeMinimal() {
     makeDeterminized();
+    makingMinimal= true;
     reverse();
     makeDeterminized();
     reverse();
     makeDeterminized();
-    isMinimal= true;
+    makingMinimal = false;
+    //isMinimal= true;
 }
 
-MyString Automata::getRegularExpression() const {
-    MyString result;
 
-    bool firstFinalState= false;
-    for(int i=0;i<states.getSize();i++){
-        if(!firstFinalState){
-            result+='+';
-        }else{
-            firstFinalState= false;
-        }
-        int finalStateInd=finalStates[i];
-        result+="["+ getRegularExpression(startState,finalStates[i],states.getSize(),1)+"]";
+void removeEpsilo(MyString& str){
+    for(int i=0;i<str.length();i++){
+
     }
 }
-
 //MyString Automata::getRegularExpression() const {
-//    MyVector<MyVector<MyString>> regex(states.getSize());
+//    MyString result ="";
 //
 //    for(int i=0;i<states.getSize();i++){
-//        for(int j=0;j<states.getSize();j++){
-//            if(i==j){
-//                regex[i][i]+="$";
-//            }else if(states[i].hasTransition(i,j)){
-//                regex[i][i]+=states[i].transitionsFromState[j].key;
-//            }
+//        if(i!=0){
+//            result+='+';
 //        }
+//            result += "[" + getRegularExpression(startState, finalStates[i], states.getSize(), true) + "]";
 //    }
 //
-//    for(int i=0;i<states.getSize();i++){
-//        for(int j=0;j<states.getSize();j++){
-//            for(int k=0;k<states.getSize();j++) {
-//                if(regex[j][i]!=""&& regex[i][k]!=""){
-//                    MyString newRegex= regex[j][i]+"("+ regex[i][i]+")*"+regex[i][k];
-//                    if(regex[j][k]==""){
-//                        regex[j][k]+=newRegex;
-//                    }else{
-//                        regex[j][k]+="("+regex[j][k]+"+"+newRegex+")";
-//
-//                    }
-//                }
-//
-//            }
-//        }
-//    }
-//    MyString finalRegex;
-//
-//    for(int i=0;i<states.getSize();i++){
-//        if(isFinal(i)){
-//            if(finalRegex.length()!=0){
-//                finalRegex+="+";
-//            }
-//            finalRegex+= regex[states.getSize()][i];
-//        }
-//    }
-//
-//    return finalRegex;
-//
+//    return result;
 //}
 
-MyString Automata::getRegularExpression(int start, int end, int bound, bool epsilon) const {
+MyString Automata::getRegularExpression() const {
+    MyVector<MyVector<MyString>> regex(states.getSize());
 
+    for(int i=0;i<states.getSize();i++){
+        MyVector<MyString> temp(states.getSize());
+        for(int j=0;j<states.getSize();j++){
+            temp.push("");
+        }
+        regex.push(temp);
+    }
+
+    int transitionIndex=0;
+    for(int i=0;i<states.getSize();i++){
+        for(int j=0;j<states[i].getCountOfTransitions();j++){
+            int dest= states[i][j].destination;
+            char symb= states[i][j].key;
+            if(i==transitionIndex){
+                if(regex[i][dest]==""){
+                    regex[i][dest]+=symb;
+                }else{
+                    regex[i][dest]+="+"+symb;
+                }
+                transitionIndex++;
+            }else{
+                break;
+            }
+        }
+    }
+
+        for(int k=0;k<states.getSize();k++){
+            for(int i=0;i<states.getSize();i++){
+                for(int j=0;j<states.getSize();j++){
+                    if(regex[i][k]!=""&& regex[k][j]!=""){
+                        MyString newReg=("("+regex[i][k]+")("+regex[k][j]+")");
+                        if(regex[i][j]==""){
+                            regex[i][j]=newReg;
+                        }else{
+                            regex[i][j]+="+"+newReg;
+                        }
+                    }
+                }
+            }
+        }
+    MyString finalRegex=regex[startState][finalStates[0]];
+
+        if(finalStates.getSize()>1){
+            for(int i=1;i<finalStates.getSize();i++){
+                MyString currentFinalStateREX= regex[startState][finalStates[i]];
+                finalRegex=("("+finalRegex+" )+( "+currentFinalStateREX+")");
+            }
+        }
+
+    return finalRegex;
+}
+bool needBrackets(const MyString& regex)
+{
+    if (regex.length() == 0)
+        return false;
+    if (regex[0] == '(' && regex[regex.length() - 1] == ')')
+        return false;
+
+    for (int i = 0; i < regex.length(); ++i)
+    {
+        if (regex[i] == '+')
+            return true;
+    }
+    return regex[regex.length() - 1] == '*';
+}
+MyString Automata::getRegularExpression(int start, int end, int bound, bool epsilon) const {
+    // From Angeld55
+    // Ne sme vzimali kak se izvejda regulqren izraz ot avtomat,
+    // opitah nqkolko varianta i se chupeha v nqkoi sluchai
+    // ostaveni sa zakomentirani po dolu
     if(bound==0){
         MySet<char> temp;
 
-        if(start==end){
+        if(start==end&& epsilon){
             temp.push('$');
         }
         for(int i=0;i<states[start].getCountOfTransitions();i++){
@@ -488,21 +514,63 @@ MyString Automata::getRegularExpression(int start, int end, int bound, bool epsi
             }
         }
 
-        MyString str;
-        bool firstChar = true;
-
+        MyString str="";
         for(int i=0;i<temp.getSize();i++){
-            if(!firstChar){
-                str+="+";
-            }else{
-                firstChar= false;
+            if(i!=0){
+                str+=" + ";
             }
-            str+=temp[i];
+            str+= temp[i];
         }
         return str;
     }
 
+    MyString leftL= getRegularExpression(start,end,bound-1,epsilon);
+    MyString beforeBound= getRegularExpression(start,bound-1,bound-1,epsilon);
+    MyString boundState = getRegularExpression(bound-1,bound-1,bound-1, false);
+    MyString afterBound= getRegularExpression(bound-1,end,bound-1,epsilon);
+    MyString right;
+
+    if(beforeBound!="$"){
+        if(needBrackets(beforeBound)){
+            right+=" ( "+beforeBound+")";
+        }else{
+            right+=beforeBound;
+        }
+    }
+
+    if(boundState!= "$"&& boundState !=""){
+        right+= " ( "+boundState+ ")*";
+    }
+
+    if(afterBound!= "$"){
+        if(needBrackets(afterBound)){
+            right+= " ( "+ afterBound+ " ) ";
+        }else{
+            right+= afterBound;
+        }
+    }
+    if (beforeBound == "$" && (boundState == "$" || boundState == "") && afterBound == "$")
+        right = "$";
+    if (beforeBound == "" || afterBound == "")
+        right = "";
+
+    if (leftL == "" && right == "")
+        return "";
+    if (leftL == "")
+        return right;
+    if (right == "")
+        return leftL;
+    if (leftL == right)
+        return leftL;
+
+    MyString regex= leftL;
+    if (needBrackets(right))
+        regex = regex + " + " + "(" + right + ")";
+    else
+        regex += " + " + right;
+    return regex;
 }
+
 
 Automata Union(const Automata& lhs, const Automata& rhs){
     // drawing the both automats
@@ -583,13 +651,16 @@ Automata KleeneStar(const Automata& source){
     Automata result= source;
     result.addState();
     result.makeLastStateStarting();
-    //make the new starting State do the the same as the old one
-    result.copyTransitions(result.startState,source.startState);
-    result.makeStateFinal(result.startState);
-    for(int i=0;i<result.finalStates.getSize();i++){
-        result.copyTransitions(i,result.startState);
-    }
 
+    result.debug();
+    std::cout<<"------"<<std::endl;
+
+    //make the new starting State do the the same as the old one
+    result.copyTransitions(result.states.getSize()-1,source.startState);
+    for(int i=0;i<result.finalStates.getSize();i++){
+        result.copyTransitions(result.finalStates[i],result.startState);
+    }
+    result.makeStateFinal(result.startState);
 
     return result;
 }
