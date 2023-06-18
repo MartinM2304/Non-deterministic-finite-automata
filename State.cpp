@@ -35,3 +35,12 @@ bool State::hasTransition(char ch) const {
     }
     return false;
 }
+
+bool State::hasTransition(int start, int end) const {
+    for(int i=0;i<getCountOfTransitions();i++){
+        if(transitionsFromState[i].destination==end){
+            return true;
+        }
+    }
+    return false;
+}

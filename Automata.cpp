@@ -287,9 +287,9 @@ void Automata::changeStartingState(size_t n) {
 }
 void Automata::makeToOneAutomata(const Automata &other) {
     int size =states.getSize();
-    int otherSize=other.states.getSize();
+    //int otherSize=other.states.getSize();
 
-    for(int i=0;i<otherSize;i++){
+    for(int i=0;i<other.states.getSize();i++){
         states.push(other.states[i]);
 
             for(int j=0;j<other.states[i].getCountOfTransitions();j++){
@@ -426,27 +426,116 @@ MyString Automata::getRegularExpression() const {
             firstFinalState= false;
         }
         int finalStateInd=finalStates[i];
-        result+=""
+        result+="["+ getRegularExpression(startState,finalStates[i],states.getSize(),1)+"]";
     }
+}
+
+//MyString Automata::getRegularExpression() const {
+//    MyVector<MyVector<MyString>> regex(states.getSize());
+//
+//    for(int i=0;i<states.getSize();i++){
+//        for(int j=0;j<states.getSize();j++){
+//            if(i==j){
+//                regex[i][i]+="$";
+//            }else if(states[i].hasTransition(i,j)){
+//                regex[i][i]+=states[i].transitionsFromState[j].key;
+//            }
+//        }
+//    }
+//
+//    for(int i=0;i<states.getSize();i++){
+//        for(int j=0;j<states.getSize();j++){
+//            for(int k=0;k<states.getSize();j++) {
+//                if(regex[j][i]!=""&& regex[i][k]!=""){
+//                    MyString newRegex= regex[j][i]+"("+ regex[i][i]+")*"+regex[i][k];
+//                    if(regex[j][k]==""){
+//                        regex[j][k]+=newRegex;
+//                    }else{
+//                        regex[j][k]+="("+regex[j][k]+"+"+newRegex+")";
+//
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
+//    MyString finalRegex;
+//
+//    for(int i=0;i<states.getSize();i++){
+//        if(isFinal(i)){
+//            if(finalRegex.length()!=0){
+//                finalRegex+="+";
+//            }
+//            finalRegex+= regex[states.getSize()][i];
+//        }
+//    }
+//
+//    return finalRegex;
+//
+//}
+
+MyString Automata::getRegularExpression(int start, int end, int bound, bool epsilon) const {
+
+    if(bound==0){
+        MySet<char> temp;
+
+        if(start==end){
+            temp.push('$');
+        }
+        for(int i=0;i<states[start].getCountOfTransitions();i++){
+            if(states[start][i].destination==end){
+                temp.push(states[start][i].key);
+            }
+        }
+
+        MyString str;
+        bool firstChar = true;
+
+        for(int i=0;i<temp.getSize();i++){
+            if(!firstChar){
+                str+="+";
+            }else{
+                firstChar= false;
+            }
+            str+=temp[i];
+        }
+        return str;
+    }
+
 }
 
 Automata Union(const Automata& lhs, const Automata& rhs){
     // drawing the both automats
     //adding new starting state
-    Automata result;
+
+
+//    lhs.debug();
+//    std::cout<<lhs.states.getSize()<<std::endl;
+//    std::cout<<"---------------"<<std::endl;
+//
+//    rhs.debug();
+//    std::cout<<rhs.states.getSize()<<std::endl;
+//
+//    std::cout<<"---------------"<<std::endl;
+
+
+
+//    size_t finalStatesCount = lhs.finalStates.getSize();
+//    MyVector<State> tempFinalStates;
+//    for(int i=0;i<finalStatesCount;i++){
+//        State temp;
+//        temp.transitionsFromState=rhs.states[0].transitionsFromState;
+//        //tempFinalStates.push(temp);
+//        result.states.push(temp);
+//    }
+    Automata result=lhs;
     result.makeToOneAutomata(rhs);
     result.addState();
-    size_t newStartingStateIndex=result.states.getSize()-1;
-    result.changeStartingState(newStartingStateIndex);
+    result.changeStartingState(result.states.getSize()-1);
+    result.copyTransitions(result.states.getSize()-1,lhs.startState);
+    result.copyTransitions(result.states.getSize()-1,lhs.states.getSize()+rhs.startState);
 
-    size_t finalStatesCount = lhs.finalStates.getSize();
-    MyVector<State> tempFinalStates;
-    for(int i=0;i<finalStatesCount;i++){
-        State temp;
-        temp.transitionsFromState=rhs.states[0].transitionsFromState;
-        //tempFinalStates.push(temp);
-        result.states.push(temp);
-    }
+
 
     if(lhs.finalStates.contains(lhs.startState)||rhs.finalStates.contains(rhs.startState)){
         result.makeStateFinal(result.startState);
@@ -527,7 +616,7 @@ void Automata::debug() const {
     for(int i=0;i<states.getSize();i++){
         std::cout<<"State - "<<i<<" - "<<std::endl;
         for(int j=0;j<states[i].getCountOfTransitions();j++){
-            std::cout<<states[i][j].key<<"  -  "<<states[i][j].destination<<std::endl;
+            std::cout<<states[i][j].key<<"  ->  "<<states[i][j].destination<<std::endl;
         }
     }
     for(int i=0;i<finalStates.getSize();i++){

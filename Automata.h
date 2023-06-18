@@ -56,7 +56,7 @@ public:
     void debug()const;
 
     MyString getRegularExpression()const;
-
+    MyString getRegularExpression(int start, int end, int bound,bool epsilon )const;
 
     friend Automata Union(const Automata& lhs, const Automata& rhs);
     friend Automata Concat(const Automata& lhs, const Automata& rhs);

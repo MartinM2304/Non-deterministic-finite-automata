@@ -12,6 +12,7 @@ struct State {
     Transition& operator[](size_t n);
     const Transition& operator[](size_t n)const;
     bool hasTransition(char ch)const;
+    bool hasTransition(int start, int end)const;
 
     State& operator+=(const State& other);
 };
