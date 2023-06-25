@@ -46,7 +46,7 @@ bool State::hasTransition(int start, int end) const {
 }
 
 void State::writeToFile(std::ofstream &ofs)const {
-    int size =transitionsFromState.getSize();
+    size_t size =transitionsFromState.getSize();
     ofs.write((const char*)&size, sizeof(size_t));
     for(int i=0;i<transitionsFromState.getSize();i++){
         transitionsFromState[i].writeToFile(ofs);
@@ -54,8 +54,8 @@ void State::writeToFile(std::ofstream &ofs)const {
 }
 
 void State::readFromFile(std::ifstream &ifs) {
-    size_t size;
-    ifs.read((char*)&size, sizeof(size));
+    size_t size=0;
+    ifs.read((char*)&size, sizeof(size_t));
     for(int i=0;i<size;i++){
         Transition temp;
         temp.readFromFile(ifs);

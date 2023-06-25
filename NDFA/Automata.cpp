@@ -708,7 +708,6 @@ void Automata::writeToFile(const MyString &name) const {
 
     if(!ofs.is_open()){
         throw std::runtime_error("file not opened");
-
     }
     ofs.write((const char*)& startState, sizeof(startState));
 
